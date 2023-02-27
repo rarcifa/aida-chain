@@ -53,12 +53,31 @@ export class Transaction {
     return transaction;
   }
 
-  static signTransaction(transaction: Transaction, senderWallet: Wallet) {
+  /**
+   * @summary  signs a transaction with the sender's private key.
+   * @param  {Transaction} transaction the transaction to be signed.
+   * @param  {Wallet} senderWallet the wallet of the sender.
+   * @returns void
+   */
+  static signTransaction(transaction: Transaction, senderWallet: Wallet): void {
     transaction.input = {
       timestamp: Date.now(),
       amount: senderWallet.balance,
       address: senderWallet.publicKey,
       signature: senderWallet.sign(ChainUtil.hash(transaction.outputs)),
     };
+  }
+
+  /**
+   * @summary  verifies the signature of a transaction.
+   * @param  {Transaction} transaction the transaction to verify.
+   * @returns  true if the signature is valid, false otherwise.
+   */
+  static verifyTransaction(transaction: Transaction) {
+    return ChainUtil.verifySignature(
+      transaction.input.address,
+      transaction.input.signature,
+      ChainUtil.hash(transaction.outputs)
+    );
   }
 }
