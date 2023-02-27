@@ -2,7 +2,7 @@ import express, { Express, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import { P2pServer } from '@p2p/p2p-server';
 import { Blockchain } from '@blockchain/index';
-import { logger } from '@helpers/logger';
+import { logger } from '@src/utils/logger';
 import { Block } from '@blockchain/block';
 
 const blockchain: Blockchain = new Blockchain();

@@ -1,5 +1,5 @@
 import { Block } from '@blockchain/block';
-import { logger } from '@helpers/logger';
+import { logger } from '@utils/logger';
 
 /**
  * @summary  represents a blockchain that stores a chain of blocks.

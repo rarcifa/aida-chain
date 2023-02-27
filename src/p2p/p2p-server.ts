@@ -1,6 +1,6 @@
 import { Blockchain } from '@blockchain/index';
 import { P2P_PORT } from '@config/constants';
-import { logger } from '@helpers/logger';
+import { logger } from '@src/utils/logger';
 import Websocket from 'ws';
 
 const peers: string[] = process.env.PEERS ? process.env.PEERS.split(',') : [];

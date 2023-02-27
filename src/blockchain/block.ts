@@ -1,5 +1,5 @@
+import { ChainUtil } from '@utils/chain-util';
 import { DIFFICULTY, MINE_RATE } from '@config/constants';
-import SHA256 from 'crypto-js/sha256';
 
 /**
  * @summary  represents a block in the blockchain.
@@ -104,7 +104,7 @@ export class Block {
     nonce: number,
     difficulty: number
   ): string {
-    return SHA256(
+    return ChainUtil.hash(
       `${timestamp}${lastHash}${data}${nonce}${difficulty}`
     ).toString();
   }

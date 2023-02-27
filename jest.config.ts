@@ -5,10 +5,12 @@ module.exports = {
     '^@src/(.*)$': '<rootDir>/src/$1',
     '^@blockchain/(.*)$': '<rootDir>/src/blockchain/$1',
     '^@config/(.*)$': '<rootDir>/src/config/$1',
-    '^@helpers/(.*)$': '<rootDir>/src/helpers/$1',
+    '^@wallet/(.*)$': '<rootDir>/src/wallet/$1',
+    '^@utils/(.*)$': '<rootDir>/src/utils/$1',
     '^@handlers/(.*)$': '<rootDir>/src/handlers/$1',
     '^@routes/(.*)$': '<rootDir>/src/routes/$1',
     '^@services/(.*)$': '<rootDir>/src/services/$1',
+    '^@interfaces/(.*)$': '<rootDir>/src/interfaces/$1',
   },
   coveragePathIgnorePatterns: [
     'node_modules',
