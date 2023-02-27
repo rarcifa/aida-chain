@@ -22,6 +22,34 @@ export class Transaction {
   }
 
   /**
+   * @summary  update the transaction by adding a new recipient output and decreasing the sender output amount.
+   * @param  {Wallet} senderWallet - the sender's wallet.
+   * @param  {string} recipientWallet - the recipient's wallet address.
+   * @param  {number} amount - the amount to be transferred.
+   * @returns {Transaction}  the updated transaction or undefined if the amount exceeds the sender's balance.
+   */
+  update(
+    senderWallet: Wallet,
+    recipientWallet: Wallet,
+    amount: number
+  ): Transaction {
+    const senderOutput: IOutput = this.outputs.find(
+      (output: IOutput) => output.address === senderWallet.publicKey
+    );
+    if (amount > senderOutput.amount) {
+      logger.error(`Amount: ${amount} exceeds the balance`);
+      return;
+    }
+    senderOutput.amount = senderOutput.amount - amount;
+    this.outputs.push({
+      amount,
+      address: recipientWallet.publicKey,
+    });
+    Transaction.signTransaction(this, senderWallet);
+    return this;
+  }
+
+  /**
    * @summary  creates a new transaction.
    * @param  {Wallet} senderWallet the wallet of the sender.
    * @param  {Wallet} recipientWallet the wallet of the recipient.
