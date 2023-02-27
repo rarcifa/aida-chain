@@ -15,7 +15,8 @@
     "paths": {
       "*": ["node_modules/*"],
       "@src/*": ["src/*"],
-      "@lib/*": ["src/lib/*"],
+      "@blockchain/*": ["src/blockchain/*"],
+      "@p2p/*": ["src/p2p/*"],
       "@config/*": ["src/config/*"],
       "@helpers/*": ["src/helpers/*"],
       "@routes/*": ["src/routes/*"],
