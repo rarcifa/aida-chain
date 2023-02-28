@@ -1,4 +1,4 @@
-import { BNInput, ec } from 'elliptic';
+import { ec } from 'elliptic';
 
 export interface IOutput {
   amount: number;

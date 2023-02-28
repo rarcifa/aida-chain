@@ -1,6 +1,8 @@
 import { Blockchain } from '@blockchain/index';
-import { P2P_PORT } from '@config/constants';
-import { logger } from '@src/utils/logger';
+import { MESSAGE_TYPES, P2P_PORT } from '@config/constants';
+import { Transaction } from '@wallet/transaction';
+import { logger } from '@utils/logger';
+import { TransactionPool } from '@wallet/transaction-pool';
 import Websocket from 'ws';
 
 const peers: string[] = process.env.PEERS ? process.env.PEERS.split(',') : [];
@@ -11,14 +13,17 @@ const peers: string[] = process.env.PEERS ? process.env.PEERS.split(',') : [];
  */
 export class P2pServer {
   blockchain: Blockchain;
+  transactionPool: TransactionPool;
   sockets: Websocket[];
 
   /**
    * @summary  creates a new p2pserver.
    * @param  {Blockchain} blockchain - the blockchain instance.
+   * @param  {TransactionPool} transactionPool - the transactionPool instance.
    */
-  constructor(blockchain: Blockchain) {
+  constructor(blockchain: Blockchain, transactionPool: TransactionPool) {
     this.blockchain = blockchain;
+    this.transactionPool = transactionPool;
     this.sockets = [];
   }
 
@@ -70,7 +75,26 @@ export class P2pServer {
    * @param  {Websocket} socket - the socket to send the chain to.
    */
   sendChain(socket: Websocket): void {
-    socket.send(JSON.stringify(this.blockchain.chain));
+    socket.send(
+      JSON.stringify({
+        type: MESSAGE_TYPES.chain,
+        chain: this.blockchain.chain,
+      })
+    );
+  }
+
+  /**
+   * @summary  sends a transaction to the specified WebSocket connection.
+   * @param  {Websocket} socket - the WebSocket connection to send the transaction to.
+   * @param  {Transaction} transaction - the transaction to send.
+   */
+  sendTransaction(socket: Websocket, transaction: Transaction): void {
+    socket.send(
+      JSON.stringify({
+        type: MESSAGE_TYPES.transaction,
+        transaction: transaction,
+      })
+    );
   }
 
   /**
@@ -78,5 +102,13 @@ export class P2pServer {
    */
   syncChains(): void {
     this.sockets.forEach((socket: Websocket) => this.sendChain(socket));
+  }
+
+  /**
+   * @summary  broadcasts a transaction to all connected WebSocket clients.
+   * @param  {Transaction} transaction - the transaction to broadcast.
+   */
+  broadcastTransaction(transaction: Transaction): void {
+    this.sockets.forEach((socket) => this.sendTransaction(socket, transaction));
   }
 }

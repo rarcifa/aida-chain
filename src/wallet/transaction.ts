@@ -36,10 +36,12 @@ export class Transaction {
     const senderOutput: IOutput = this.outputs.find(
       (output: IOutput) => output.address === senderWallet.publicKey
     );
+
     if (amount > senderOutput.amount) {
       logger.error(`Amount: ${amount} exceeds the balance`);
       return;
     }
+
     senderOutput.amount = senderOutput.amount - amount;
     this.outputs.push({
       amount,
@@ -62,12 +64,14 @@ export class Transaction {
     amount: number
   ): Transaction {
     const transaction: Transaction = new this();
+
     if (amount > senderWallet.balance) {
       logger.error(
         `Amount: ${amount} exceeds balance: ${senderWallet.balance}`
       );
       return;
     }
+
     transaction.outputs.push(
       ...[
         {
@@ -85,7 +89,6 @@ export class Transaction {
    * @summary  signs a transaction with the sender's private key.
    * @param  {Transaction} transaction the transaction to be signed.
    * @param  {Wallet} senderWallet the wallet of the sender.
-   * @returns void
    */
   static signTransaction(transaction: Transaction, senderWallet: Wallet): void {
     transaction.input = {
@@ -101,7 +104,7 @@ export class Transaction {
    * @param  {Transaction} transaction the transaction to verify.
    * @returns  true if the signature is valid, false otherwise.
    */
-  static verifyTransaction(transaction: Transaction) {
+  static verifyTransaction(transaction: Transaction): boolean {
     return ChainUtil.verifySignature(
       transaction.input.address,
       transaction.input.signature,

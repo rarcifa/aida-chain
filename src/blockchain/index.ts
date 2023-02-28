@@ -37,6 +37,7 @@ export class Blockchain {
   isValidChain(chain: Block[]): boolean {
     if (JSON.stringify(chain[0]) !== JSON.stringify(Block.genesis()))
       return false;
+
     for (let i = 1; i < chain.length; i++) {
       const block = chain[i];
       const lastBlock = chain[i - 1];
@@ -47,6 +48,7 @@ export class Blockchain {
         return false;
       }
     }
+
     return true;
   }
 
@@ -54,7 +56,7 @@ export class Blockchain {
    * @summary  replaces the current chain with a new chain, if the new chain is longer and valid.
    * @param  {Block[]} newChain - the new chain to replace the current chain.
    */
-  replaceChain(newChain: Block[]) {
+  replaceChain(newChain: Block[]): void {
     if (newChain.length <= this.chain.length) {
       logger.info('Received chain is not longer the current chain');
       return;
@@ -62,6 +64,7 @@ export class Blockchain {
       logger.info('Received chain is not valid');
       return;
     }
+
     logger.info('Replacing Blockchain with the new chain');
     this.chain = newChain;
   }

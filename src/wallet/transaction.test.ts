@@ -1,4 +1,5 @@
-import { Transaction } from '@wallet/transactions';
+import { IOutput } from '@interfaces/transactions';
+import { Transaction } from '@wallet/transaction';
 import { Wallet } from '@wallet/index';
 
 describe('Transaction', () => {
@@ -21,7 +22,7 @@ describe('Transaction', () => {
   it('should output the amount subtracted from the wallet balance', () => {
     expect(
       transaction.outputs.find(
-        (output) => output.address === senderWallet.publicKey
+        (output: IOutput) => output.address === senderWallet.publicKey
       ).amount
     ).toEqual(senderWallet.balance - amount);
   });
@@ -29,7 +30,7 @@ describe('Transaction', () => {
   it('should output the amount added to the recipient', () => {
     expect(
       transaction.outputs.find(
-        (output) => output.address === recepientWallet.publicKey
+        (output: IOutput) => output.address === recepientWallet.publicKey
       ).amount
     ).toEqual(amount);
   });
@@ -74,7 +75,7 @@ describe('Transaction', () => {
     it('should subtract the next amount from the senders output', () => {
       expect(
         transaction.outputs.find(
-          (output) => output.address === senderWallet.publicKey
+          (output: IOutput) => output.address === senderWallet.publicKey
         ).amount
       ).toEqual(senderWallet.balance - amount - nextAmount);
     });
@@ -82,7 +83,7 @@ describe('Transaction', () => {
     it('should output an amount for the next recipient', () => {
       expect(
         transaction.outputs.find(
-          (output) => output.address === nextRecipient.publicKey
+          (output: IOutput) => output.address === nextRecipient.publicKey
         ).amount
       ).toEqual(nextAmount);
     });
