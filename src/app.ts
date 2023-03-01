@@ -9,7 +9,6 @@ import { TransactionPool } from '@wallet/transaction-pool';
 import { Transaction } from '@wallet/transaction';
 import { Miner } from '@miner/index';
 
-// title
 const app: Express = express();
 const bc: AIDAchain = new AIDAchain();
 const wallet: Wallet = new Wallet();
