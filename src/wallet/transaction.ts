@@ -2,9 +2,10 @@ import { IInput, IOutput } from '@interfaces/transactions';
 import { ChainUtil } from '@utils/chain-util';
 import { logger } from '@utils/logger';
 import { Wallet } from '@wallet/index';
+import { MINING_REWARD } from '@config/constants';
 
 /**
- * @summary  transaction class represents a transaction in the blockchain.
+ * @summary  transaction class represents a transaction in the AIDAchain.
  * @class
  */
 export class Transaction {
@@ -52,6 +53,22 @@ export class Transaction {
   }
 
   /**
+   * @summary  creates a new transaction with the specified outputs and signs it using the given sender wallet.
+   * @param  {Wallet} senderWallet - the wallet to sign the transaction with.
+   * @param  {IOutput[]} outputs - the outputs to add to the transaction.
+   * @returns  {Transaction} - a new transaction object with the specified outputs, signed by the sender wallet.
+   */
+  static transactionWithOutputs(
+    senderWallet: Wallet,
+    outputs: IOutput[]
+  ): Transaction {
+    const transaction = new this();
+    transaction.outputs.push(...outputs);
+    Transaction.signTransaction(transaction, senderWallet);
+    return transaction;
+  }
+
+  /**
    * @summary  creates a new transaction.
    * @param  {Wallet} senderWallet the wallet of the sender.
    * @param  {Wallet} recipientWallet the wallet of the recipient.
@@ -63,8 +80,6 @@ export class Transaction {
     recipientWallet: Wallet,
     amount: number
   ): Transaction {
-    const transaction: Transaction = new this();
-
     if (amount > senderWallet.balance) {
       logger.error(
         `Amount: ${amount} exceeds balance: ${senderWallet.balance}`
@@ -72,17 +87,32 @@ export class Transaction {
       return;
     }
 
-    transaction.outputs.push(
-      ...[
-        {
-          amount: senderWallet.balance - amount,
-          address: senderWallet.publicKey,
-        },
-        { amount, address: recipientWallet.publicKey },
-      ]
-    );
-    Transaction.signTransaction(transaction, senderWallet);
-    return transaction;
+    return Transaction.transactionWithOutputs(senderWallet, [
+      {
+        amount: senderWallet.balance - amount,
+        address: senderWallet.publicKey,
+      },
+      { amount, address: recipientWallet.publicKey },
+    ]);
+  }
+
+  /**
+   * @summary  creates a new reward transaction with the specified mining reward and miner wallet,
+   * and sends the reward to the specified AIDAchain wallet.
+   * @param  {Wallet} minerWallet - the wallet of the miner who is receiving the reward.
+   * @param  {Wallet} aidachainWallet - the wallet that will receive the mining reward.
+   * @returns  {Transaction} - a new transaction object representing the reward transaction.
+   */
+  static rewardTransaction(
+    minerWallet: Wallet,
+    aidachainWallet: Wallet
+  ): Transaction {
+    return Transaction.transactionWithOutputs(aidachainWallet, [
+      {
+        amount: MINING_REWARD,
+        address: minerWallet.publicKey,
+      },
+    ]);
   }
 
   /**

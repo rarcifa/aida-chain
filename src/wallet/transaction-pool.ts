@@ -1,4 +1,6 @@
-import { Transaction } from '@src/wallet/transaction';
+import { IOutput } from '@interfaces/transactions';
+import { logger } from '@utils/logger';
+import { Transaction } from '@wallet/transaction';
 
 /**
  * @summary  Class representing a pool of transactions.
@@ -37,6 +39,43 @@ export class TransactionPool {
    * @returns  {Transaction} The existing transaction object with the given address, or undefined if not found.
    */
   existingTransaction(address: string): Transaction {
-    return this.transactions.find((t) => t.input.address === address);
+    return this.transactions.find(
+      (tx: Transaction) => tx.input.address === address
+    );
+  }
+
+  /**
+   * @summary  returns an array of valid transactions by filtering out any transactions
+   * that have an invalid output total or an invalid signature.
+   * @returns  {Transaction[]} an array of valid transactions
+   */
+  validTransactions(): Transaction[] {
+    return this.transactions.filter((tx: Transaction) => {
+      const outputTotal: number = tx.outputs.reduce(
+        (total: number, output: IOutput) => {
+          return total + output.amount;
+        },
+        0
+      );
+
+      if (tx.input.amount !== outputTotal) {
+        logger.error(`Invalid transaction from ${tx.input.address}`);
+        return;
+      }
+
+      if (!Transaction.verifyTransaction(tx)) {
+        logger.error(`Invalid signature from ${tx.input.address}`);
+        return;
+      }
+
+      return tx;
+    });
+  }
+
+  /**
+   * @summary  clears the transactionPool
+   */
+  clear(): void {
+    this.transactions = [];
   }
 }

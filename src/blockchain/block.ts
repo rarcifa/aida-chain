@@ -1,15 +1,16 @@
 import { ChainUtil } from '@utils/chain-util';
 import { DIFFICULTY, MINE_RATE } from '@config/constants';
+import { Transaction } from '@src/wallet/transaction';
 
 /**
- * @summary  represents a block in the blockchain.
+ * @summary  represents a block in the AIDAchain.
  * @class
  */
 export class Block {
   timestamp: number;
   prevHash: string;
   hash: string;
-  data: string[];
+  data: Transaction[];
   nonce: number;
   difficulty: number;
 
@@ -18,7 +19,7 @@ export class Block {
    * @param  {number} timestamp - the timestamp of the block.
    * @param  {string} prevHash - the ash of previous block.
    * @param  {string} hash - the hash of the block.
-   * @param  {string[]} data - the data of the block.
+   * @param  {Transaction[]} data - the data of the block.
    * @param  {number} nonce - the nonce of the block.
    * @param  {number} difficulty - the difficulty of the block.
    */
@@ -26,7 +27,7 @@ export class Block {
     timestamp: number,
     prevHash: string,
     hash: string,
-    data: string[],
+    data: Transaction[],
     nonce: number,
     difficulty: number
   ) {
@@ -70,10 +71,10 @@ export class Block {
   /**
    * @summary  mines a new block.
    * @param  {Block} lastBlock - the last block in the chain.
-   * @param  {string[]} data - the data to add to the new block.
+   * @param  {Transaction[]} data - the data to add to the new block.
    * @returns  {Block} the newly mined block.
    */
-  static mineBlock(lastBlock: Block, data: string[]): Block {
+  static mineBlock(lastBlock: Block, data: Transaction[]): Block {
     let hash,
       timestamp,
       nonce = 0;
@@ -94,7 +95,7 @@ export class Block {
    * @summary  calculates the hash of the block.
    * @param  {number} timestamp - the timestamp of the block.
    * @param  {string} lastHash - the previous block's hash.
-   * @param  {string[]} data - the data of the block.
+   * @param  {Transaction[]} data - the data of the block.
    * @param  {number} nonce - the nonce of the block.
    * @param  {number} difficulty - the difficulty of the block.
    * @returns  {string} the hash of the block.
@@ -102,7 +103,7 @@ export class Block {
   static hash(
     timestamp: number,
     lastHash: string,
-    data: string[],
+    data: Transaction[],
     nonce: number,
     difficulty: number
   ): string {
@@ -125,7 +126,7 @@ export class Block {
    * @summary  adjusts the difficulty of mining a new block based on the time taken to mine the previous block.
    * if the time taken is less than the MINE_RATE, then the difficulty is increased by 1.
    * if the time taken is greater than the MINE_RATE, then the difficulty is decreased by 1.
-   * @param  {Block} lastBlock - the previous block in the blockchain
+   * @param  {Block} lastBlock - the previous block in the AIDAchain
    * @param  {number} currentTime - the current time in milliseconds
    * @returns  {number} - the adjusted difficulty level
    */

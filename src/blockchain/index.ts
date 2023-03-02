@@ -1,26 +1,27 @@
 import { Block } from '@blockchain/block';
+import { Transaction } from '@src/wallet/transaction';
 import { logger } from '@utils/logger';
 
 /**
- * @summary  represents a blockchain that stores a chain of blocks.
+ * @summary  represents an AIDAchain instance.
  * @class
  */
-export class Blockchain {
+export class AIDAchain {
   chain: Block[];
 
   /**
-   * @summary  creates a new blockchain.
+   * @summary  creates a new AIDAchain instance.
    */
   constructor() {
     this.chain = [Block.genesis()];
   }
 
   /**
-   * @summary  adds a new block to the blockchain.
-   * @param  {string[]} data - the data to be included in the new block.
-   * @returns  {Block} the new block that was added to the blockchain.
+   * @summary  adds a new block to the AIDAchain.
+   * @param  {Transaction[]} data - the data to be included in the new block.
+   * @returns  {Block} the new block that was added to the AIDAchain.
    */
-  addBlock(data: string[]): Block {
+  addBlock(data: Transaction[]): Block {
     const block: Block = Block.mineBlock(
       this.chain[this.chain.length - 1],
       data
@@ -30,7 +31,7 @@ export class Blockchain {
   }
 
   /**
-   * @summary  checks whether a given chain is a valid chain for the blockchain.
+   * @summary  checks whether a given chain is a valid chain for the AIDAchain.
    * @param  {Block[]} chain - the chain to be validated.
    * @returns  {boolean} `true` if the chain is valid, otherwise `false`.
    */
@@ -65,7 +66,7 @@ export class Blockchain {
       return;
     }
 
-    logger.info('Replacing Blockchain with the new chain');
+    logger.info('Replacing current chain with the new chain');
     this.chain = newChain;
   }
 }

@@ -1,7 +1,8 @@
-import { IOutput } from '@src/interfaces/transactions';
+import { IOutput } from '@interfaces/transactions';
 import { Wallet } from '@wallet/index';
 import { TransactionPool } from '@wallet/transaction-pool';
-import { Transaction } from './transaction';
+import { Transaction } from '@wallet/transaction';
+import { MINING_REWARD } from '@src/config/constants';
 
 describe('Wallet', () => {
   let wallet: Wallet, tp: TransactionPool;
@@ -40,6 +41,24 @@ describe('Wallet', () => {
             .map((output: IOutput) => output.amount)
         ).toEqual([sendAmount, sendAmount]);
       });
+    });
+  });
+  describe('creating a reward transaction', () => {
+    let transaction: Transaction;
+
+    beforeEach(() => {
+      transaction = Transaction.rewardTransaction(
+        wallet,
+        Wallet.aidachainWallet()
+      );
+    });
+
+    it('should reward the miner', () => {
+      expect(
+        transaction.outputs.find(
+          (output: IOutput) => output.address === wallet.publicKey
+        ).amount
+      ).toEqual(MINING_REWARD);
     });
   });
 });

@@ -1,17 +1,20 @@
 import express, { Express, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import { P2pServer } from '@p2p/p2p-server';
-import { Blockchain } from '@blockchain/index';
+import { AIDAchain } from '@src/blockchain/index';
 import { logger } from '@utils/logger';
-import { Block } from '@blockchain/block';
+import { Block } from '@src/blockchain/block';
 import { Wallet } from '@wallet/index';
 import { TransactionPool } from '@wallet/transaction-pool';
+import { Transaction } from '@wallet/transaction';
+import { Miner } from '@miner/index';
 
 const app: Express = express();
-const bc: Blockchain = new Blockchain();
+const bc: AIDAchain = new AIDAchain();
 const wallet: Wallet = new Wallet();
 const tp: TransactionPool = new TransactionPool();
 const p2pServer: P2pServer = new P2pServer(bc, tp);
+const miner: Miner = new Miner(bc, tp, wallet, p2pServer);
 
 app.use(bodyParser.json());
 
@@ -23,6 +26,16 @@ app.get('/transactions', (_req: Request, res: Response) => {
   res.json(tp.transactions);
 });
 
+app.get('/public-key', (_req: Request, res: Response) => {
+  res.json({ publicKey: wallet.publicKey });
+});
+
+app.get('/mine-transaction', (_req: Request, res: Response) => {
+  const block: Block = miner.mine();
+  logger.info(`New block added: ${block.toString()}`);
+  res.redirect('/blocks');
+});
+
 app.post('/mine', async (req: Request, res: Response) => {
   const block: Block = bc.addBlock(req.body);
   logger.info(`New block added: ${block.toString()}`);
@@ -32,7 +45,12 @@ app.post('/mine', async (req: Request, res: Response) => {
 
 app.post('/createTransaction', (req: Request, res: Response) => {
   const { recipient, amount } = req.body;
-  wallet.createTransaction(recipient, amount, tp);
+  const transaction: Transaction = wallet.createTransaction(
+    recipient,
+    amount,
+    tp
+  );
+  p2pServer.broadcastTransaction(transaction);
   res.redirect('/transactions');
 });
 

@@ -1,7 +1,7 @@
 import { Block } from '@blockchain/Block';
 
 describe('Block', () => {
-  let data: string[], lastBlock: Block, block: Block;
+  let data: any, lastBlock: Block, block: Block;
 
   beforeEach(() => {
     data = ['data'];

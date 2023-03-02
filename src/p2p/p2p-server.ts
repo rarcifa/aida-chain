@@ -1,4 +1,4 @@
-import { Blockchain } from '@blockchain/index';
+import { AIDAchain } from '@blockchain/index';
 import { MESSAGE_TYPES, P2P_PORT } from '@config/constants';
 import { Transaction } from '@wallet/transaction';
 import { logger } from '@utils/logger';
@@ -12,17 +12,17 @@ const peers: string[] = process.env.PEERS ? process.env.PEERS.split(',') : [];
  * @class
  */
 export class P2pServer {
-  blockchain: Blockchain;
+  aidachain: AIDAchain;
   transactionPool: TransactionPool;
   sockets: Websocket[];
 
   /**
    * @summary  creates a new p2pserver.
-   * @param  {Blockchain} blockchain - the blockchain instance.
+   * @param  {AIDAchain} aidachain - the AIDAchain instance.
    * @param  {TransactionPool} transactionPool - the transactionPool instance.
    */
-  constructor(blockchain: Blockchain, transactionPool: TransactionPool) {
-    this.blockchain = blockchain;
+  constructor(aidachain: AIDAchain, transactionPool: TransactionPool) {
+    this.aidachain = aidachain;
     this.transactionPool = transactionPool;
     this.sockets = [];
   }
@@ -42,7 +42,6 @@ export class P2pServer {
    */
   connectToPeers(): void {
     peers.forEach((peer: string) => {
-      // e.g. ws://localhost:5001
       const socket = new Websocket(peer);
       socket.on('open', () => this.connectSocket(socket));
     });
@@ -66,19 +65,29 @@ export class P2pServer {
   messageHandler(socket: Websocket): void {
     socket.on('message', (message: string) => {
       const data = JSON.parse(message);
-      this.blockchain.replaceChain(data);
+      switch (data.type) {
+        case MESSAGE_TYPES.chain:
+          this.aidachain.replaceChain(data.chain);
+          break;
+        case MESSAGE_TYPES.transaction:
+          this.transactionPool.updateOrAddTransaction(data.transaction);
+          break;
+        case MESSAGE_TYPES.clear_transactions:
+          this.transactionPool.clear();
+          break;
+      }
     });
   }
 
   /**
-   * s@summary  sends the current blockchain chain to a specified socket.
+   * s@summary  sends the current chain to a specified socket.
    * @param  {Websocket} socket - the socket to send the chain to.
    */
   sendChain(socket: Websocket): void {
     socket.send(
       JSON.stringify({
         type: MESSAGE_TYPES.chain,
-        chain: this.blockchain.chain,
+        chain: this.aidachain.chain,
       })
     );
   }
@@ -98,7 +107,7 @@ export class P2pServer {
   }
 
   /**
-   * @summary  synchronizes the blockchain chain with all connected sockets.
+   * @summary  synchronizes the chain with all connected sockets.
    */
   syncChains(): void {
     this.sockets.forEach((socket: Websocket) => this.sendChain(socket));
@@ -110,5 +119,14 @@ export class P2pServer {
    */
   broadcastTransaction(transaction: Transaction): void {
     this.sockets.forEach((socket) => this.sendTransaction(socket, transaction));
+  }
+
+  /**
+   * @summary  broadcasts clear transactios message to all connected WebSocket clients
+   */
+  broadcastClearTransactions(): void {
+    this.sockets.forEach((socket) =>
+      socket.send(JSON.stringify({ type: MESSAGE_TYPES.clear_transactions }))
+    );
   }
 }

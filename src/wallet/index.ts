@@ -73,4 +73,14 @@ export class Wallet {
 
     return transaction;
   }
+
+  /**
+   * @summary  creates a new AIDAchain wallet with a default public key.
+   * @returns  {Wallet} - a new wallet object representing the AIDAchain wallet.
+   */
+  static aidachainWallet(): Wallet {
+    const AIDAchainWallet = new this();
+    AIDAchainWallet.publicKey = 'blocklchain-wallet';
+    return AIDAchainWallet;
+  }
 }

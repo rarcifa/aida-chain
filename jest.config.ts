@@ -6,6 +6,7 @@ module.exports = {
     '^@blockchain/(.*)$': '<rootDir>/src/blockchain/$1',
     '^@config/(.*)$': '<rootDir>/src/config/$1',
     '^@wallet/(.*)$': '<rootDir>/src/wallet/$1',
+    '^@miner/(.*)$': '<rootDir>/src/miner/$1',
     '^@utils/(.*)$': '<rootDir>/src/utils/$1',
     '^@handlers/(.*)$': '<rootDir>/src/handlers/$1',
     '^@routes/(.*)$': '<rootDir>/src/routes/$1',

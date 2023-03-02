@@ -1,7 +1,7 @@
 {
-  "name": "research-chain",
+  "name": "aida-chain",
   "version": "1.0.0",
-  "description": "",
+  "description": "Project AIDA (Autonomous Intelligent Decentralized Application) is a revolutionary new application built on the principles of blockchain technology, artificial intelligence, and decentralized governance. The project aims to create a decentralized application that is autonomous, intelligent, and secure, leveraging the best of blockchain and AI to create a platform that can be used for a wide range of applications.",
   "main": "index.js",
   "scripts": {
     "test": "jest --watchAll",
@@ -9,7 +9,7 @@
     "dev": "ts-node -r tsconfig-paths/register ./src/server.ts",
     "dev-test": "ts-node -r tsconfig-paths/register ./src/scripts/dev-test.ts"
   },
-  "author": "",
+  "author": "rarcifa",
   "license": "ISC",
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",

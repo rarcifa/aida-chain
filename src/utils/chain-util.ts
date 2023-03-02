@@ -1,12 +1,12 @@
 import * as elliptic from 'elliptic';
 import SHA256 from 'crypto-js/sha256';
 import { v4 as uuidv4 } from 'uuid';
-import { IOutput } from '@src/interfaces/transactions';
+import { IOutput } from '@interfaces/transactions';
 
 const ec: elliptic.ec = new elliptic.ec('secp256k1');
 
 /**
- * @summary  utility class for blockchain operations.
+ * @summary  utility class for AIDAchain operations.
  * @class
  */
 export class ChainUtil {
