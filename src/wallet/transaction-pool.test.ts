@@ -1,13 +1,18 @@
 import { TransactionPool } from '@wallet/transaction-pool';
 import { Transaction } from '@wallet/transaction';
 import { Wallet } from '@wallet/index';
+import { AIDAchain } from '@src/blockchain';
 
 describe('TransactionPool', () => {
-  let tp: TransactionPool, wallet: Wallet, transaction: Transaction;
+  let tp: TransactionPool,
+    wallet: Wallet,
+    transaction: Transaction,
+    bc: AIDAchain;
 
   beforeEach(() => {
     tp = new TransactionPool();
     wallet = new Wallet();
+    bc = new AIDAchain();
     transaction = Transaction.newTransaction(wallet, new Wallet(), 30);
     tp.updateOrAddTransaction(transaction);
   });
@@ -42,7 +47,7 @@ describe('TransactionPool', () => {
       validTransactions = [...tp.transactions];
       for (let i = 0; i < 6; i++) {
         wallet = new Wallet();
-        transaction = wallet.createTransaction(new Wallet(), 30, tp);
+        transaction = wallet.createTransaction(new Wallet(), 30, bc, tp);
         if (i % 2 == 0) {
           transaction.input.amount = 99999;
         } else {

@@ -22,7 +22,7 @@ export class TransactionPool {
    */
   updateOrAddTransaction(transaction: Transaction): void {
     let transactionWithId: Transaction = this.transactions.find(
-      (t) => t.id === transaction.id
+      (tx: Transaction) => tx.id === transaction.id
     );
 
     if (transactionWithId) {

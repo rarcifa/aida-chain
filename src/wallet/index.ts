@@ -4,6 +4,8 @@ import { ChainUtil } from '@utils/chain-util';
 import { BNInput, ec } from 'elliptic';
 import { TransactionPool } from '@wallet/transaction-pool';
 import { Transaction } from '@wallet/transaction';
+import { AIDAchain } from '@src/blockchain';
+import { IOutput } from '@src/interfaces/transactions';
 
 /**
  * @summary  represents a wallet that contains a public key and a balance.
@@ -46,32 +48,79 @@ export class Wallet {
    * @summary  creates a new transaction and adds it to the transaction pool.
    * @param  {Wallet} recipient - the recipient's wallet object.
    * @param  {number} amount - the amount to send in the transaction.
+   * @param  {AIDAchain} aidachain - the AIDAchain to generate the transaction.
    * @param  {TransactionPool} transactionPool - The pool of transactions to add the new transaction to.
    * @returns  {Transaction} the newly created transaction object.
    */
   createTransaction(
     recipient: Wallet,
     amount: number,
+    aidachain: AIDAchain,
     transactionPool: TransactionPool
   ): Transaction {
+    this.balance = this.calculateBalance(aidachain);
+
     if (amount > this.balance) {
       logger.error(
         `Amount: ${amount} exceeds current balance: ${this.balance}`
       );
       return;
     }
-    let transaction: Transaction = transactionPool.existingTransaction(
-      this.publicKey
-    );
+    let tx: Transaction = transactionPool.existingTransaction(this.publicKey);
 
-    if (transaction) {
-      transaction.update(this, recipient, amount);
+    if (tx) {
+      tx.update(this, recipient, amount);
     } else {
-      transaction = Transaction.newTransaction(this, recipient, amount);
-      transactionPool.updateOrAddTransaction(transaction);
+      tx = Transaction.newTransaction(this, recipient, amount);
+      transactionPool.updateOrAddTransaction(tx);
     }
 
-    return transaction;
+    return tx;
+  }
+
+  /**
+   * @summary  calculates the balance of a wallet on the AIDAchain.
+   * @param  {AIDAchain} aidachain - the AIDAchain to search for transactions.
+   * @returns  {number} the balance of the wallet.
+   */
+  calculateBalance(aidachain: AIDAchain): number {
+    let balance: number = this.balance;
+    let transactions: Transaction[] = [];
+    let startTime: number = 0;
+
+    aidachain.chain.forEach((block) =>
+      block.data.forEach((tx: Transaction) => {
+        transactions.push(tx);
+      })
+    );
+
+    const walletInputTxs: Transaction[] = transactions.filter(
+      (tx: Transaction) => tx.input.address === this.publicKey
+    );
+
+    if (walletInputTxs.length > 0) {
+      const recentInputTx: Transaction = walletInputTxs.reduce(
+        (prev: Transaction, current: Transaction) =>
+          prev.input.timestamp > current.input.timestamp ? prev : current
+      );
+
+      balance = recentInputTx.outputs.find(
+        (output: IOutput) => output.address === this.publicKey
+      ).amount;
+      startTime = recentInputTx.input.timestamp;
+    }
+
+    transactions.forEach((tx: Transaction) => {
+      if (tx.input.timestamp > startTime) {
+        tx.outputs.find((output: IOutput) => {
+          if (output.address === this.publicKey) {
+            balance += output.amount;
+          }
+        });
+      }
+    });
+
+    return balance;
   }
 
   /**
